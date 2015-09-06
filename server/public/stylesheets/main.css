@@ -1,0 +1,37 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    background-color: #eee;
+}
+
+body {
+    padding: 30px;
+}
+
+body h1 {
+    color: #555555;
+    font-family: 'Roboto Condensed', sans-serif;
+    font-weight: bold;
+    font-size: 250%
+}
+
+body h1 a {
+    float: right;
+}
+
+body h1 a img {
+    height: 40px;
+}
+
+#lineChart {
+    border: 1px dashed #888;
+    background-color: #fff;
+}
+
+#source {
+    display: block;
+    padding-top: 20px;
+    color: #7788aa;
+    text-decoration: none;
+    font-weight: bold;
+}

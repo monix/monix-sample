@@ -11,10 +11,13 @@ lazy val server = (project in file("server")).settings(
   libraryDependencies ++= Seq(
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
     "org.webjars" % "jquery" % "1.11.1",
-    "org.monifu" %% "monifu" % "1.0-M10"
+    "org.webjars.bower" % "epoch" % "0.6.0",
+    "org.webjars" % "d3js" % "3.5.6",
+    "org.monifu" %% "monifu" % "1.0-RC1",
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
   ),
   // Heroku specific
-  herokuAppName in Compile := "your-heroku-app-name",
+  herokuAppName in Compile := "monifu-sample",
   herokuSkipSubProjects in Compile := false
 ).enablePlugins(PlayScala).
   aggregate(clients.map(projectToRef): _*).
@@ -27,7 +30,7 @@ lazy val client = (project in file("client")).settings(
   sourceMapsDirectories += sharedJs.base / "..",
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.8.0",
-    "org.monifu" %%% "monifu" % "1.0-M10"
+    "org.monifu" %%% "monifu" % "1.0-RC1"
   )
 ).enablePlugins(ScalaJSPlugin, ScalaJSPlay).
   dependsOn(sharedJs)
