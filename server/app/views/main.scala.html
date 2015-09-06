@@ -5,11 +5,15 @@
 <html>
   <head>
     <title>@title</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:700,400' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
     <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    <link rel="stylesheet" media="screen" href="@routes.Assets.at("lib/epoch/epoch.min.css")">
     <script src="@routes.Assets.at("lib/jquery/jquery.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("lib/d3js/d3.min.js")" type="text/javascript"></script>
+    <script src="@routes.Assets.at("lib/epoch/epoch.min.js")" type="text/javascript"></script>
   </head>
-  <body>
+  <body class="epoch-theme-default">
    @content
    @playscalajs.html.scripts("client")
   </body>
