@@ -13,7 +13,7 @@ Overview of the code:
   [engine.WebSocketActor](server/app/engine/WebSocketActor.scala) (using
   Play's [WebSocket support](https://www.playframework.com/documentation/2.4.x/ScalaWebSockets#Handling-WebSockets-with-actors))
 - the generic client-side WebSocket consumer is in 
-  [client.WebSocketClient](client/src/main/scala/client/WebSocketActor.scala)
+  [client.WebSocketClient](client/src/main/scala/client/WebSocketClient.scala)
 - the type-safe observable that listens to a server web-socket connection
   generating signals is in 
   [client.DataConsumer](client/src/main/scala/client/DataConsumer.scala)
