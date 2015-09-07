@@ -8,13 +8,13 @@ import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj, _}
 
 final class Graph(elementId: String)
-  extends Observer[(Signal, Signal, Signal)] {
+  extends Observer[(Signal, Signal, Signal, Signal)] {
 
   private var chart: js.Dynamic = null
 
-  def initChart(signal: (Signal, Signal, Signal)) = {
-    val (first, second, third) = signal
-    val timestamp = Seq(first.timestamp, second.timestamp, third.timestamp).max / 1000
+  def initChart(signal: (Signal, Signal, Signal, Signal)) = {
+    val (first, second, third, fourth) = signal
+    val timestamp = Seq(first.timestamp, second.timestamp, third.timestamp, fourth.timestamp).max / 1000
 
     global.jQuery(s"#$elementId").epoch(obj(
       "type" -> "time.line",
@@ -42,14 +42,22 @@ final class Graph(elementId: String)
             "time" -> timestamp,
             "y" -> third.value.toInt
           ))
+        ),
+        obj(
+          "label" -> "Series 4",
+          "axes" -> js.Array("left", "bottom", "right"),
+          "values" -> js.Array(obj(
+            "time" -> timestamp,
+            "y" -> fourth.value.toInt
+          ))
         )
       )
     ))
   }
     
-  private def serialize(signal: (Signal, Signal, Signal)) = {
-    val (first, second, third) = signal
-    val timestamp = Seq(first.timestamp, second.timestamp, third.timestamp).max / 1000
+  private def serialize(signal: (Signal, Signal, Signal, Signal)) = {
+    val (first, second, third, fourth) = signal
+    val timestamp = Seq(first.timestamp, second.timestamp, third.timestamp, fourth.timestamp).max / 1000
 
     js.Array(
       obj(
@@ -63,10 +71,14 @@ final class Graph(elementId: String)
       obj(
         "time" -> timestamp,
         "y" -> third.value.toInt
+      ),
+      obj(
+        "time" -> timestamp,
+        "y" -> fourth.value.toInt
       ))
   }
 
-  def onNext(signal: (Signal, Signal, Signal)): Future[Ack] = {
+  def onNext(signal: (Signal, Signal, Signal, Signal)): Future[Ack] = {
     if (chart == null) {
       chart = initChart(signal)
     }

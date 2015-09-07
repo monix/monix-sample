@@ -2,7 +2,7 @@ package engine
 
 import akka.actor.{Actor, ActorRef, Props}
 import com.typesafe.scalalogging.LazyLogging
-import engine.WebSocketActor._
+import engine.BackPressuredWebSocketActor._
 import monifu.concurrent.Scheduler
 import monifu.reactive.Observable
 import monifu.reactive.OverflowStrategy.DropOld
@@ -13,7 +13,7 @@ import shared.models.Event
 import scala.concurrent.duration._
 
 
-class WebSocketActor[T <: Event : Writes]
+class BackPressuredWebSocketActor[T <: Event : Writes]
   (producer: Observable[T], out: ActorRef)(implicit s: Scheduler)
   extends Actor with LazyLogging {
 
@@ -73,12 +73,12 @@ class WebSocketActor[T <: Event : Writes]
   }
 }
 
-object WebSocketActor {
+object BackPressuredWebSocketActor {
   /** Utility for quickly creating a `Props` */
   def props[T <: Event : Writes](producer: Observable[T], out: ActorRef)
     (implicit s: Scheduler): Props = {
 
-    Props(new WebSocketActor(producer, out))
+    Props(new BackPressuredWebSocketActor(producer, out))
   }
 
   /**
