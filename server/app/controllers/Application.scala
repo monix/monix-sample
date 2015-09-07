@@ -1,7 +1,7 @@
 package controllers
 
 import monifu.concurrent.Implicits.globalScheduler
-import engine.{WebSocketActor, DataProducer}
+import engine.{SimpleWebSocketActor, BackPressuredWebSocketActor, DataProducer}
 import play.api.libs.json.JsValue
 import play.api.mvc._
 import play.api.Play.current
@@ -12,9 +12,15 @@ object Application extends Controller with JSONFormats {
     Ok(views.html.index())
   }
 
-  def dataGenerator(periodMillis: Int, seed: Long) =
+  def backPressuredStream(periodMillis: Int, seed: Long) =
     WebSocket.acceptWithActor[String, JsValue] { req => out =>
       val obs = new DataProducer(periodMillis.millis, seed)
-      WebSocketActor.props(obs, out)
+      BackPressuredWebSocketActor.props(obs, out)
+    }
+
+  def simpleStream(periodMillis: Int, seed: Long) =
+    WebSocket.acceptWithActor[String, JsValue] { req => out =>
+      val obs = new DataProducer(periodMillis.millis, seed)
+      SimpleWebSocketActor.props(obs, out)
     }
 }

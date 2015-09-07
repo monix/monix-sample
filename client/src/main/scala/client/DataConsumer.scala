@@ -1,20 +1,28 @@
 package client
 
+import monifu.reactive.OverflowStrategy.DropNew
 import monifu.reactive.{Observable, Subscriber}
 import org.scalajs.dom
-import shared.models.{OverflowEvent, Event, Signal}
+import shared.models.{Event, OverflowEvent, Signal}
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js.Dynamic.global
 
-final class DataConsumer(interval: FiniteDuration, seed: Long)
+final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: Boolean)
   extends Observable[Event] {
 
   def onSubscribe(subscriber: Subscriber[Event]): Unit = {
     val host = dom.window.location.host
-    val url = s"ws://$host/data-generator?" +
-      s"periodMillis=${interval.toMillis}&seed=$seed"
 
-    WebSocketClient(url)
+    val source = if (doBackPressure) {
+      val url = s"ws://$host/back-pressured-stream?periodMillis=${interval.toMillis}&seed=$seed"
+      BackPressuredWebSocketClient(url)
+    }
+    else {
+      val url = s"ws://$host/simple-stream?periodMillis=${interval.toMillis}&seed=$seed"
+      SimpleWebSocketClient(url, DropNew(1000))
+    }
+
+    source
       .collect { case IsEvent(e) => e }
       .onSubscribe(subscriber)
   }
@@ -37,7 +45,7 @@ final class DataConsumer(interval: FiniteDuration, seed: Long)
         case "error" =>
           val errorType = json.`type`.asInstanceOf[String]
           val message = json.message.asInstanceOf[String]
-          throw new WebSocketClient.Exception(
+          throw new BackPressuredWebSocketClient.Exception(
             s"Server-side error throw - $errorType: $message")
         case _ =>
           None
