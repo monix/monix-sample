@@ -3,7 +3,8 @@
 Sample of a mixed client/server application demonstrating
 the streaming of values over web-socket, both simple and with 
 back-pressure applied (by means of the [Reactive Streams](http://www.reactive-streams.org/)
-protocol).
+protocol), using [Monifu](https://github.com/monifu/monifu) for both
+the server and the client ;-)
 
 See: **[monifu-sample.herokuapp.com](http://monifu-sample.herokuapp.com)**
 
