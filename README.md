@@ -27,5 +27,20 @@ Overview of the code:
   [client.DataConsumer](client/src/main/scala/client/DataConsumer.scala)
 - the integration with Epoch, our charting library, is in
   [client.Graph](client/src/main/scala/client/Graph.scala)
+  
+NOTES:
+
+- we are exposing 2 versions of webSocket connections, one that is back-pressured
+  as a matter of the server-side protocol and one that is not
+- both versions are protected by buffers that start dropping events in case
+  the client is too slow, but the difference is that for the back-pressured 
+  version the buffer is being maintained server-side
+- by applying back-pressure in the protocol, the server is informed of the 
+  rate at which the client can consume and thus there is no risk for the
+  server in case we've got clients that are too slow; on the other hand for the
+  simple version the server can be crashed on clients that are too slow in 
+  receiving their events, as that actor's mailbox is unbounded
+- the back-pressured version needs server-side cooperation / implementation and
+  is thus more difficult to develop
 
 ~;Enjoy
