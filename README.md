@@ -42,5 +42,15 @@ NOTES:
   receiving their events, as that actor's mailbox is unbounded
 - the back-pressured version needs server-side cooperation / implementation and
   is thus more difficult to develop
+  
+In order to develop and execute the project locally:
+```
+sbt run
+```
+
+The project is based on the cool 
+[play-with-scalajs-example](https://github.com/vmunier/play-with-scalajs-example)
+template by @vmunier, so you get the auto-reload coolness of Play in combination
+with Scala.js.
 
 ~;Enjoy
