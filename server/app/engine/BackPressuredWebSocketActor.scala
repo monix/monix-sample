@@ -34,7 +34,7 @@ class BackPressuredWebSocketActor[T <: Event : Writes]
     val source = {
       val initial = Observable.unit(initMessage(now()))
       val obs = initial ++ producer.map(x => Json.toJson(x))
-      val timeout = obs.debounce(5.seconds).map(_ => keepAliveMessage(now()))
+      val timeout = obs.debounceRepeated(5.seconds).map(_ => keepAliveMessage(now()))
 
       Observable.merge(obs, timeout)
         .whileBusyBuffer(DropOld(100), nr => onOverflow(nr, now()))
