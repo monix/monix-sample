@@ -12,13 +12,14 @@ final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: B
 
   def onSubscribe(subscriber: Subscriber[Event]): Unit = {
     val host = dom.window.location.host
+    val protocol = if (dom.window.location.protocol == "https:") "wss:" else "ws:"
 
     val source = if (doBackPressure) {
-      val url = s"ws://$host/back-pressured-stream?periodMillis=${interval.toMillis}&seed=$seed"
+      val url = s"$protocol//$host/back-pressured-stream?periodMillis=${interval.toMillis}&seed=$seed"
       BackPressuredWebSocketClient(url)
     }
     else {
-      val url = s"ws://$host/simple-stream?periodMillis=${interval.toMillis}&seed=$seed"
+      val url = s"$protocol//$host/simple-stream?periodMillis=${interval.toMillis}&seed=$seed"
       SimpleWebSocketClient(url, DropNew(1000))
     }
 
