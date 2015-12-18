@@ -5,6 +5,7 @@ import monifu.reactive.{Observable, Subscriber}
 import org.scalajs.dom
 import shared.models.{Event, OverflowEvent, Signal}
 import scala.concurrent.duration.FiniteDuration
+import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
 
 final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: Boolean)
@@ -12,7 +13,7 @@ final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: B
 
   def onSubscribe(subscriber: Subscriber[Event]): Unit = {
     val host = dom.window.location.host
-    val protocol = if (dom.window.location.protocol == "https:") "wss:" else "ws:"
+    val protocol = if (dom.document.location.protocol == "https:") "wss:" else "ws:"
 
     val source = if (doBackPressure) {
       val url = s"$protocol//$host/back-pressured-stream?periodMillis=${interval.toMillis}&seed=$seed"

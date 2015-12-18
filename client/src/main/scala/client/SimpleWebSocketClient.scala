@@ -48,6 +48,7 @@ final class SimpleWebSocketClient private
 
     var webSocket: WebSocket = null
     val channel = try {
+      Utils.log(s"Connecting to $url")
       webSocket = new WebSocket(url)
       createChannel(webSocket)
     }
