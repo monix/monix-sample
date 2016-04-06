@@ -1,10 +1,12 @@
 package client
 
-import monifu.concurrent.Scheduler
-import monifu.reactive.{Ack, Observable, Observer, Subscriber}
+import monix.execution.{Ack, Scheduler}
+import monix.reactive.observers.Subscriber
+import monix.reactive.{Observable, Observer}
 import org.reactivestreams.Subscription
 import org.scalajs.dom.raw.MessageEvent
 import org.scalajs.dom.{CloseEvent, ErrorEvent, Event, WebSocket}
+
 import scala.concurrent._
 import concurrent.duration._
 

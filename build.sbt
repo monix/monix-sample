@@ -1,7 +1,7 @@
 import sbt.Project.projectToRef
 
 lazy val clients = Seq(client)
-lazy val scalaV = "2.11.7"
+lazy val scalaV = "2.11.8"
 
 lazy val server = (project in file("server")).settings(
   scalaVersion := scalaV,
@@ -10,10 +10,10 @@ lazy val server = (project in file("server")).settings(
   resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
   libraryDependencies ++= Seq(
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-    "org.webjars" % "jquery" % "1.11.1",
+    "org.webjars.bower" % "jquery" % "3.0.0-beta1",
     "org.webjars.bower" % "epoch" % "0.6.0",
-    "org.webjars" % "d3js" % "3.5.6",
-    "org.monifu" %% "monifu" % "1.0",
+    "org.webjars" % "d3js" % "3.5.16",
+    "io.monix" %% "monix" % "2.0-M1",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
   ),
   // Heroku specific
@@ -32,8 +32,8 @@ lazy val client = (project in file("client"))
     persistLauncher in Test := false,
     sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.8.0",
-      "org.monifu" %%% "monifu" % "1.0"
+      "org.scala-js" %%% "scalajs-dom" % "0.9.0",
+      "io.monix" %%% "monix" % "2.0-M1"
     )
   )
 
