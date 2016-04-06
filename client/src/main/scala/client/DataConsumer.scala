@@ -1,17 +1,19 @@
 package client
 
-import monifu.reactive.OverflowStrategy.DropNew
-import monifu.reactive.{Observable, Subscriber}
+import monix.execution.Cancelable
+import monix.reactive.Observable
+import monix.reactive.OverflowStrategy.DropNew
+import monix.reactive.observers.Subscriber
 import org.scalajs.dom
 import shared.models.{Event, OverflowEvent, Signal}
+
 import scala.concurrent.duration.FiniteDuration
-import scala.scalajs.js
 import scala.scalajs.js.Dynamic.global
 
 final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: Boolean)
   extends Observable[Event] {
 
-  def onSubscribe(subscriber: Subscriber[Event]): Unit = {
+  override def unsafeSubscribeFn(subscriber: Subscriber[Event]): Cancelable = {
     val host = dom.window.location.host
     val protocol = if (dom.document.location.protocol == "https:") "wss:" else "ws:"
 
@@ -26,7 +28,7 @@ final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: B
 
     source
       .collect { case IsEvent(e) => e }
-      .onSubscribe(subscriber)
+      .subscribe(subscriber)
   }
 
   object IsEvent {

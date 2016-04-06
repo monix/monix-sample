@@ -1,6 +1,7 @@
 package client
 
-import monix.execution.{Ack, Scheduler}
+import monix.execution.cancelables.BooleanCancelable
+import monix.execution.{Ack, Cancelable, Scheduler}
 import monix.reactive.observers.Subscriber
 import monix.reactive.{Observable, Observer}
 import org.reactivestreams.Subscription
@@ -15,37 +16,40 @@ final class BackPressuredWebSocketClient private (url: String)
   extends Observable[String] { self =>
 
   private def createChannel(webSocket: WebSocket) =
-    Observable.create[String] { subscriber =>
-      import subscriber.scheduler
-      val downstream = Observer.toReactiveSubscriber(subscriber)
+    new Observable[String] {
+      override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
+        import subscriber.scheduler
+        val downstream = Observer.toReactiveSubscriber(subscriber)
 
-      try {
-        webSocket.onopen = (event: Event) => {
-          downstream.onSubscribe(new Subscription {
-            def cancel(): Unit =
-              closeConnection(webSocket)
+        try {
+          webSocket.onopen = (event: Event) => {
+            downstream.onSubscribe(new Subscription {
+              def cancel(): Unit =
+                closeConnection(webSocket)
 
-            def request(n: Long): Unit = {
-              webSocket.send(n.toString)
-            }
-          })
+              def request(n: Long): Unit = {
+                webSocket.send(n.toString)
+              }
+            })
+          }
+
+          webSocket.onerror = (event: ErrorEvent) => {
+            downstream.onError(BackPressuredWebSocketClient.Exception(event.message))
+          }
+
+          webSocket.onclose = (event: CloseEvent) => {
+            downstream.onComplete()
+          }
+
+          webSocket.onmessage = (event: MessageEvent) => {
+            downstream.onNext(event.data.asInstanceOf[String])
+          }
+          BooleanCancelable() //FIXME: this should be returned by the subscribe
+        } catch {
+          case ex: Throwable =>
+            downstream.onError(ex)
+            BooleanCancelable()
         }
-
-        webSocket.onerror = (event: ErrorEvent) => {
-          downstream.onError(BackPressuredWebSocketClient.Exception(event.message))
-        }
-
-        webSocket.onclose = (event: CloseEvent) => {
-          downstream.onComplete()
-        }
-
-        webSocket.onmessage = (event: MessageEvent) => {
-          downstream.onNext(event.data.asInstanceOf[String])
-        }
-      }
-      catch {
-        case ex: Throwable =>
-          downstream.onError(ex)
       }
     }
 
@@ -54,7 +58,7 @@ final class BackPressuredWebSocketClient private (url: String)
       try webSocket.close() catch { case _: Throwable => () }
   }
 
-  def onSubscribe(subscriber: Subscriber[String]): Unit = {
+  override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
     var webSocket: WebSocket = null
@@ -68,10 +72,10 @@ final class BackPressuredWebSocketClient private (url: String)
         Observable.error(ex)
     }
 
-    val source = channel.timeout(5.seconds)
-      .doOnCanceled(closeConnection(webSocket))
+    val source = channel.throttleWithTimeout(5.seconds)
+      .doOnCancel(closeConnection(webSocket))
 
-    source.onSubscribe(new Observer[String] {
+    source.subscribe(new Observer[String] {
       def onNext(elem: String): Future[Ack] =
         subscriber.onNext(elem)
 
@@ -80,14 +84,14 @@ final class BackPressuredWebSocketClient private (url: String)
         scheduler.reportFailure(ex)
         // retry connection in a couple of secs
         self.delaySubscription(3.seconds)
-          .onSubscribe(subscriber)
+          .subscribe(subscriber)
       }
 
       def onComplete(): Unit = {
         closeConnection(webSocket)
         // retry connection in a couple of secs
         self.delaySubscription(3.seconds)
-          .onSubscribe(subscriber)
+          .subscribe(subscriber)
       }
     })
   }

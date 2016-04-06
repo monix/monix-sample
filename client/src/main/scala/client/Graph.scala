@@ -1,8 +1,10 @@
 package client
 
-import monifu.reactive.Ack.Continue
-import monifu.reactive.{Ack, Observer}
+import monix.execution.Ack
+import monix.execution.Ack.Continue
+import monix.reactive.Observer
 import shared.models.Signal
+
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{literal => obj, _}

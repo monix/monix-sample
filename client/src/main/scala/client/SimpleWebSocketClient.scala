@@ -1,10 +1,11 @@
 package client
 
-import monifu.concurrent.Scheduler
-import monifu.reactive._
-import monifu.reactive.channels.PublishChannel
+import monix.execution.{Ack, Scheduler}
+import monix.reactive.observers.Subscriber
+import monix.reactive.{Observable, Observer, OverflowStrategy}
 import org.scalajs.dom.raw.MessageEvent
 import org.scalajs.dom.{CloseEvent, ErrorEvent, Event, WebSocket}
+
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -47,7 +48,7 @@ final class SimpleWebSocketClient private
     import subscriber.scheduler
 
     var webSocket: WebSocket = null
-    val channel = try {
+    val channel: Observable[String] = try {
       Utils.log(s"Connecting to $url")
       webSocket = new WebSocket(url)
       createChannel(webSocket)
@@ -57,10 +58,10 @@ final class SimpleWebSocketClient private
         Observable.error(ex)
     }
 
-    val source = channel.timeout(5.seconds)
-      .doOnCanceled(closeConnection(webSocket))
+    val source = channel.throttleWithTimeout(5.seconds)
+      .doOnCancel(closeConnection(webSocket))
 
-    source.onSubscribe(new Observer[String] {
+    source.subscribe(new Observer[String] {
       def onNext(elem: String): Future[Ack] =
         subscriber.onNext(elem)
 
@@ -69,14 +70,14 @@ final class SimpleWebSocketClient private
         scheduler.reportFailure(ex)
         // retry connection in a couple of secs
         self.delaySubscription(3.seconds)
-          .onSubscribe(subscriber)
+          .subscribe(subscriber)
       }
 
       def onComplete(): Unit = {
         closeConnection(webSocket)
         // retry connection in a couple of secs
         self.delaySubscription(3.seconds)
-          .onSubscribe(subscriber)
+          .subscribe(subscriber)
       }
     })
   }

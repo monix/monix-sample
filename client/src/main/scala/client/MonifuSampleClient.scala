@@ -1,8 +1,8 @@
 package client
 
-import monifu.concurrent.Implicits.globalScheduler
-import monifu.reactive.Observable
+import monix.reactive.Observable
 import shared.models.Signal
+
 import scala.scalajs.js
 import concurrent.duration._
 
@@ -17,7 +17,8 @@ object MonifuSampleClient extends js.JSApp {
     val line4 = new DataConsumer(200.millis, -9826395057397L, doBackPressure = false)
       .collect { case s: Signal => s }
 
-    Observable.combineLatest(line1, line2, line3, line4)
+    Observable
+      .combineLatest4(line1, line2, line3, line4)
       .subscribe(new Graph("lineChart"))
   }
 }
