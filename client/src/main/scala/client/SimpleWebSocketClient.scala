@@ -1,8 +1,8 @@
 package client
 
-import monix.execution.{Ack, Scheduler}
+import monix.execution.{Ack, Cancelable, Scheduler}
 import monix.reactive.observers.Subscriber
-import monix.reactive.{Observable, Observer, OverflowStrategy}
+import monix.reactive.{Observable, Observer, OverflowStrategy, Pipe}
 import org.scalajs.dom.raw.MessageEvent
 import org.scalajs.dom.{CloseEvent, ErrorEvent, Event, WebSocket}
 
@@ -10,28 +10,27 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 
 
-final class SimpleWebSocketClient private
-  (url: String, os: OverflowStrategy.Synchronous)
+final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Synchronous[String])
   extends Observable[String] { self =>
 
-  private def createChannel(webSocket: WebSocket)(implicit s: Scheduler) = {
+  private def createChannel(webSocket: WebSocket)(implicit s: Scheduler): Observable[String] = {
     try {
-      val channel = PublishChannel[String](os)
+      val channel = Pipe.publish[String].concurrent(os)
       webSocket.onopen = (event: Event) => ()
 
       webSocket.onerror = (event: ErrorEvent) => {
-        channel.pushError(BackPressuredWebSocketClient.Exception(event.message))
+        channel._1.onError(BackPressuredWebSocketClient.Exception(event.message))
       }
 
       webSocket.onclose = (event: CloseEvent) => {
-        channel.pushComplete()
+        channel._1.onComplete()
       }
 
       webSocket.onmessage = (event: MessageEvent) => {
-        channel.pushNext(event.data.asInstanceOf[String])
+        channel._1.onNext(event.data.asInstanceOf[String])
       }
 
-      channel
+      channel._2
     }
     catch {
       case ex: Throwable =>
@@ -44,7 +43,7 @@ final class SimpleWebSocketClient private
       try webSocket.close() catch { case _: Throwable => () }
   }
 
-  def onSubscribe(subscriber: Subscriber[String]): Unit = {
+  override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
     var webSocket: WebSocket = null
@@ -84,7 +83,7 @@ final class SimpleWebSocketClient private
 }
 
 object SimpleWebSocketClient {
-  def apply(url: String, os: OverflowStrategy.Synchronous): SimpleWebSocketClient = {
+  def apply(url: String, os: OverflowStrategy.Synchronous[String]): SimpleWebSocketClient = {
     new SimpleWebSocketClient(url, os)
   }
 

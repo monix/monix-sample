@@ -30,7 +30,7 @@ class SimpleWebSocketActor[T <: Event : Writes]
     super.preStart()
 
     val source = {
-      val initial = Observable.eval(initMessage(now()))
+      val initial = Observable.evalOnce(initMessage(now()))
       val obs = initial ++ producer.map(x => Json.toJson(x))
       val timeout = obs.debounce(3.seconds).map(_ => keepAliveMessage(now()))
       Observable.merge(obs, timeout)

@@ -9,11 +9,12 @@ import org.scalajs.dom.raw.MessageEvent
 import org.scalajs.dom.{CloseEvent, ErrorEvent, Event, WebSocket}
 
 import scala.concurrent._
-import concurrent.duration._
+import scala.concurrent.duration._
 
 
-final class BackPressuredWebSocketClient private (url: String)
-  extends Observable[String] { self =>
+final class BackPressuredWebSocketClient private(url: String)
+  extends Observable[String] {
+  self =>
 
   private def createChannel(webSocket: WebSocket) =
     new Observable[String] {
@@ -44,18 +45,20 @@ final class BackPressuredWebSocketClient private (url: String)
           webSocket.onmessage = (event: MessageEvent) => {
             downstream.onNext(event.data.asInstanceOf[String])
           }
-          BooleanCancelable() //FIXME: this should be returned by the subscribe
         } catch {
           case ex: Throwable =>
             downstream.onError(ex)
-            BooleanCancelable()
         }
+
+        BooleanCancelable()
       }
     }
 
   private def closeConnection(webSocket: WebSocket)(implicit s: Scheduler): Unit = {
     if (webSocket != null && webSocket.readyState <= 1)
-      try webSocket.close() catch { case _: Throwable => () }
+      try webSocket.close() catch {
+        case _: Throwable => ()
+      }
   }
 
   override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
@@ -103,4 +106,5 @@ object BackPressuredWebSocketClient {
   }
 
   case class Exception(msg: String) extends RuntimeException(msg)
+
 }

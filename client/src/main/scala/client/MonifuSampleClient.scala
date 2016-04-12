@@ -1,10 +1,11 @@
 package client
 
+import monix.execution.Scheduler.Implicits.global
 import monix.reactive.Observable
 import shared.models.Signal
 
+import scala.concurrent.duration._
 import scala.scalajs.js
-import concurrent.duration._
 
 object MonifuSampleClient extends js.JSApp {
   def main(): Unit = {

@@ -88,7 +88,6 @@ final class Graph(elementId: String)
       chart.push(serialize(signal))
     }
 
-
     Continue
   }
 
