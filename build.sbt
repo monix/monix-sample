@@ -10,11 +10,13 @@ lazy val server = (project in file("server")).settings(
   resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
   libraryDependencies ++= Seq(
     "com.vmunier" %% "play-scalajs-scripts" % "0.3.0",
-    "org.webjars.bower" % "jquery" % "3.0.0-beta1",
+    "org.webjars" % "jquery" % "1.12.3",
     "org.webjars.bower" % "epoch" % "0.6.0",
     "org.webjars" % "d3js" % "3.5.16",
     "io.monix" %% "monix" % "2.0-M2",
-    "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0"
+    "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
+
+    specs2 % Test
   ),
   // Heroku specific
   herokuAppName in Compile := "monifu-sample",
