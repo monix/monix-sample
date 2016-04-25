@@ -35,7 +35,7 @@ lazy val client = (project in file("client"))
     sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.0",
-      "io.monix" %%% "monix" % "2.0-M1"
+      "io.monix" %%% "monix" % "2.0-M2"
     )
   )
 

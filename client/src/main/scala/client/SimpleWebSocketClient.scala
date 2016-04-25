@@ -34,7 +34,7 @@ final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Sync
     }
     catch {
       case ex: Throwable =>
-        Observable.error(ex)
+        Observable.raiseError(ex)
     }
   }
 
@@ -54,7 +54,7 @@ final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Sync
     }
     catch {
       case ex: Throwable =>
-        Observable.error(ex)
+        Observable.raiseError(ex)
     }
 
     val source = channel.throttleWithTimeout(5.seconds)

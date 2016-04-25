@@ -72,7 +72,7 @@ final class BackPressuredWebSocketClient private(url: String)
     }
     catch {
       case ex: Throwable =>
-        Observable.error(ex)
+        Observable.raiseError(ex)
     }
 
     val source = channel.throttleWithTimeout(5.seconds)
