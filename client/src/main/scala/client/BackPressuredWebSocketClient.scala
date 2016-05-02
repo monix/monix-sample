@@ -75,7 +75,7 @@ final class BackPressuredWebSocketClient private(url: String)
         Observable.raiseError(ex)
     }
 
-    val source = channel.throttleWithTimeout(5.seconds)
+    val source = channel.dropByTimespan(1.second)
       .doOnCancel(closeConnection(webSocket))
 
     source.subscribe(new Observer[String] {
