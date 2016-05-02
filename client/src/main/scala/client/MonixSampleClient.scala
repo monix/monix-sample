@@ -7,7 +7,7 @@ import shared.models.Signal
 import scala.concurrent.duration._
 import scala.scalajs.js
 
-object MonifuSampleClient extends js.JSApp {
+object MonixSampleClient extends js.JSApp {
   def main(): Unit = {
     val line1 = new DataConsumer(200.millis, 1274028492832L, doBackPressure = true)
       .collect { case s: Signal => s }
