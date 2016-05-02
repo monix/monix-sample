@@ -13,7 +13,7 @@ lazy val server = (project in file("server")).settings(
     "org.webjars" % "jquery" % "1.12.3",
     "org.webjars.bower" % "epoch" % "0.6.0",
     "org.webjars" % "d3js" % "3.5.16",
-    "io.monix" %% "monix" % "2.0-M2",
+    "io.monix" %% "monix" % "2.0-RC2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.1.0",
 
     specs2 % Test
@@ -35,7 +35,7 @@ lazy val client = (project in file("client"))
     sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.0",
-      "io.monix" %%% "monix" % "2.0-M2"
+      "io.monix" %%% "monix" % "2.0-RC2"
     )
   )
 
