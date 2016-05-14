@@ -11,74 +11,78 @@ import scala.concurrent.duration._
 
 
 final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Synchronous[String])
-  extends Observable[String] { self =>
+  extends Observable[String] {
+  self =>
 
-  private def createChannel(webSocket: WebSocket)(implicit s: Scheduler): Observable[String] = {
+  private def createChannel()(implicit s: Scheduler): Observable[String] = {
+
+    var webSocket: WebSocket = null
     try {
-      val channel = Pipe.publish[String].concurrent(os)
-      webSocket.onopen = (event: Event) => ()
-
-      webSocket.onerror = (event: ErrorEvent) => {
-        channel._1.onError(BackPressuredWebSocketClient.Exception(event.message))
-      }
-
-      webSocket.onclose = (event: CloseEvent) => {
-        channel._1.onComplete()
-      }
-
-      webSocket.onmessage = (event: MessageEvent) => {
-        channel._1.onNext(event.data.asInstanceOf[String])
-      }
-
-      channel._2
+      Utils.log(s"Connecting to $url")
+      webSocket = new WebSocket(url)
     }
     catch {
       case ex: Throwable =>
         Observable.raiseError(ex)
     }
-  }
 
-  private def closeConnection(webSocket: WebSocket)(implicit s: Scheduler): Unit = {
-    if (webSocket != null && webSocket.readyState <= 1)
-      try webSocket.close() catch { case _: Throwable => () }
+    def closeConnection(): Unit = {
+      if (webSocket != null && webSocket.readyState <= 1)
+        try webSocket.close() catch {
+          case _: Throwable => ()
+        }
+    }
+
+    try {
+      val (in, out) = Pipe.publish[String].concurrent(os)
+      webSocket.onopen = (event: Event) => ()
+
+      webSocket.onerror = (event: ErrorEvent) => {
+        in.onError(BackPressuredWebSocketClient.Exception(event.message))
+      }
+
+      webSocket.onclose = (event: CloseEvent) => {
+        in.onComplete()
+      }
+
+      webSocket.onmessage = (event: MessageEvent) => {
+        in.onNext(event.data.asInstanceOf[String])
+      }
+
+      out.doOnCancel(closeConnection())
+    } catch {
+      case ex: Throwable =>
+        Observable.raiseError(ex)
+    }
   }
 
   override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
-    var webSocket: WebSocket = null
-    val channel: Observable[String] = try {
-      Utils.log(s"Connecting to $url")
-      webSocket = new WebSocket(url)
-      createChannel(webSocket)
-    }
-    catch {
-      case ex: Throwable =>
-        Observable.raiseError(ex)
-    }
+    lazy val subscription: Cancelable =
+      createChannel().unsafeSubscribeFn(new Observer[String] {
+        def onNext(elem: String): Future[Ack] =
+          subscriber.onNext(elem)
 
-    val source = channel.dropByTimespan(1.second)
-      .doOnCancel(closeConnection(webSocket))
+        def onError(ex: Throwable): Unit = {
+          subscription.cancel()
+          scheduler.reportFailure(ex)
+          // retry connection in a couple of secs
+          self
+            .delaySubscription(3.seconds)
+            .unsafeSubscribeFn(subscriber)
+        }
 
-    source.subscribe(new Observer[String] {
-      def onNext(elem: String): Future[Ack] =
-        subscriber.onNext(elem)
+        def onComplete(): Unit = {
+          subscription.cancel()
+          // retry connection in a couple of secs
+          self
+            .delaySubscription(3.seconds)
+            .unsafeSubscribeFn(subscriber)
+        }
+      })
 
-      def onError(ex: Throwable): Unit = {
-        closeConnection(webSocket)
-        scheduler.reportFailure(ex)
-        // retry connection in a couple of secs
-        self.delaySubscription(3.seconds)
-          .subscribe(subscriber)
-      }
-
-      def onComplete(): Unit = {
-        closeConnection(webSocket)
-        // retry connection in a couple of secs
-        self.delaySubscription(3.seconds)
-          .subscribe(subscriber)
-      }
-    })
+    subscription
   }
 }
 
@@ -88,4 +92,5 @@ object SimpleWebSocketClient {
   }
 
   case class Exception(msg: String) extends RuntimeException(msg)
+
 }

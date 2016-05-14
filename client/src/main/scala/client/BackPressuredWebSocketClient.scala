@@ -1,6 +1,5 @@
 package client
 
-import monix.execution.cancelables.BooleanCancelable
 import monix.execution.{Ack, Cancelable, Scheduler}
 import monix.reactive.observers.Subscriber
 import monix.reactive.{Observable, Observer}
@@ -16,17 +15,34 @@ final class BackPressuredWebSocketClient private(url: String)
   extends Observable[String] {
   self =>
 
-  private def createChannel(webSocket: WebSocket) =
+  private def createChannel() =
     new Observable[String] {
       override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
         import subscriber.scheduler
+
+        var webSocket: WebSocket = null
+        try {
+          Utils.log(s"Connecting to $url")
+          webSocket = new WebSocket(url)
+        } catch {
+          case ex: Throwable =>
+            Observable.raiseError(ex)
+        }
+
+        def closeConnection(): Unit = {
+          if (webSocket != null && webSocket.readyState <= 1)
+            try webSocket.close() catch {
+              case _: Throwable => ()
+            }
+        }
+
         val downstream = Observer.toReactiveSubscriber(subscriber)
 
         try {
           webSocket.onopen = (event: Event) => {
             downstream.onSubscribe(new Subscription {
               def cancel(): Unit =
-                closeConnection(webSocket)
+                closeConnection()
 
               def request(n: Long): Unit = {
                 webSocket.send(n.toString)
@@ -50,53 +66,37 @@ final class BackPressuredWebSocketClient private(url: String)
             downstream.onError(ex)
         }
 
-        BooleanCancelable()
+        Cancelable(closeConnection)
       }
     }
-
-  private def closeConnection(webSocket: WebSocket)(implicit s: Scheduler): Unit = {
-    if (webSocket != null && webSocket.readyState <= 1)
-      try webSocket.close() catch {
-        case _: Throwable => ()
-      }
-  }
 
   override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
-    var webSocket: WebSocket = null
-    val channel = try {
-      Utils.log(s"Connecting to $url")
-      webSocket = new WebSocket(url)
-      createChannel(webSocket)
-    }
-    catch {
-      case ex: Throwable =>
-        Observable.raiseError(ex)
-    }
+    lazy val subscription: Cancelable =
+      createChannel().subscribe(new Observer[String] {
+        def onNext(elem: String): Future[Ack] =
+          subscriber.onNext(elem)
 
-    val source = channel.dropByTimespan(1.second)
-      .doOnCancel(closeConnection(webSocket))
+        def onError(ex: Throwable): Unit = {
+          subscription.cancel()
+          scheduler.reportFailure(ex)
+          // retry connection in a couple of secs
+          self
+            .delaySubscription(3.seconds)
+            .unsafeSubscribeFn(subscriber)
+        }
 
-    source.subscribe(new Observer[String] {
-      def onNext(elem: String): Future[Ack] =
-        subscriber.onNext(elem)
+        def onComplete(): Unit = {
+          subscription.cancel()
+          // retry connection in a couple of secs
+          self
+            .delaySubscription(3.seconds)
+            .unsafeSubscribeFn(subscriber)
+        }
+      })
 
-      def onError(ex: Throwable): Unit = {
-        closeConnection(webSocket)
-        scheduler.reportFailure(ex)
-        // retry connection in a couple of secs
-        self.delaySubscription(3.seconds)
-          .subscribe(subscriber)
-      }
-
-      def onComplete(): Unit = {
-        closeConnection(webSocket)
-        // retry connection in a couple of secs
-        self.delaySubscription(3.seconds)
-          .subscribe(subscriber)
-      }
-    })
+    subscription
   }
 }
 

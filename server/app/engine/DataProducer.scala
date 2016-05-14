@@ -18,7 +18,7 @@ final class DataProducer(interval: FiniteDuration, seed: Long)
 
     val random = Observable
       .fromStateAction(Random.intInRange(-20, 20))(s.currentTimeMillis() + seed)
-      .flatMap { x => Observable.fromFuture(FutureUtils.delayedResult(interval)(x)) }
+      .flatMap { x => Observable.now(x).delaySubscription(interval) }
 
     val generator = random.scan(Signal(0, s.currentTimeMillis())) {
       case (Signal(value, _), rnd) =>
