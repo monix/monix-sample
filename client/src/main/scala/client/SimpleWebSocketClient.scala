@@ -8,6 +8,7 @@ import org.scalajs.dom.{CloseEvent, ErrorEvent, Event, WebSocket}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 
 final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Synchronous[String])
@@ -20,9 +21,8 @@ final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Sync
     try {
       Utils.log(s"Connecting to $url")
       webSocket = new WebSocket(url)
-    }
-    catch {
-      case ex: Throwable =>
+    } catch {
+      case NonFatal(ex) =>
         Observable.raiseError(ex)
     }
 
@@ -51,7 +51,7 @@ final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Sync
 
       out.doOnCancel(closeConnection())
     } catch {
-      case ex: Throwable =>
+      case NonFatal(ex) =>
         Observable.raiseError(ex)
     }
   }
@@ -59,7 +59,7 @@ final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Sync
   override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
-    lazy val subscription: Cancelable =
+    val subscription: Cancelable =
       createChannel().unsafeSubscribeFn(new Observer[String] {
         def onNext(elem: String): Future[Ack] =
           subscriber.onNext(elem)

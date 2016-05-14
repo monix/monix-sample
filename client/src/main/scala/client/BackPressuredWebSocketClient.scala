@@ -9,6 +9,7 @@ import org.scalajs.dom.{CloseEvent, ErrorEvent, Event, WebSocket}
 
 import scala.concurrent._
 import scala.concurrent.duration._
+import scala.util.control.NonFatal
 
 
 final class BackPressuredWebSocketClient private(url: String)
@@ -25,7 +26,7 @@ final class BackPressuredWebSocketClient private(url: String)
           Utils.log(s"Connecting to $url")
           webSocket = new WebSocket(url)
         } catch {
-          case ex: Throwable =>
+          case NonFatal(ex) =>
             Observable.raiseError(ex)
         }
 
@@ -62,7 +63,7 @@ final class BackPressuredWebSocketClient private(url: String)
             downstream.onNext(event.data.asInstanceOf[String])
           }
         } catch {
-          case ex: Throwable =>
+          case NonFatal(ex) =>
             downstream.onError(ex)
         }
 
@@ -73,7 +74,7 @@ final class BackPressuredWebSocketClient private(url: String)
   override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
-    lazy val subscription: Cancelable =
+    val subscription: Cancelable =
       createChannel().subscribe(new Observer[String] {
         def onNext(elem: String): Future[Ack] =
           subscriber.onNext(elem)

@@ -28,7 +28,7 @@ final class DataConsumer(interval: FiniteDuration, seed: Long, doBackPressure: B
 
     source
       .collect { case IsEvent(e) => e }
-      .subscribe(subscriber)
+      .unsafeSubscribeFn(subscriber)
   }
 
   object IsEvent {
