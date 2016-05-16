@@ -49,7 +49,7 @@ final class SimpleWebSocketClient private(url: String, os: OverflowStrategy.Sync
         in.onNext(event.data.asInstanceOf[String])
       }
 
-      out.doOnCancel(closeConnection())
+      out.doOnDownstreamStop(closeConnection())
     } catch {
       case NonFatal(ex) =>
         Observable.raiseError(ex)
