@@ -74,30 +74,25 @@ final class BackPressuredWebSocketClient private(url: String)
   override def unsafeSubscribeFn(subscriber: Subscriber[String]): Cancelable = {
     import subscriber.scheduler
 
-    val subscription: Cancelable =
-      createChannel().subscribe(new Observer[String] {
-        def onNext(elem: String): Future[Ack] =
-          subscriber.onNext(elem)
+    createChannel().unsafeSubscribeFn(new Observer[String] {
+      def onNext(elem: String): Future[Ack] =
+        subscriber.onNext(elem)
 
-        def onError(ex: Throwable): Unit = {
-          subscription.cancel()
-          scheduler.reportFailure(ex)
-          // retry connection in a couple of secs
-          self
-            .delaySubscription(3.seconds)
-            .unsafeSubscribeFn(subscriber)
-        }
+      def onError(ex: Throwable): Unit = {
+        scheduler.reportFailure(ex)
+        // retry connection in a couple of secs
+        self
+          .delaySubscription(3.seconds)
+          .unsafeSubscribeFn(subscriber)
+      }
 
-        def onComplete(): Unit = {
-          subscription.cancel()
-          // retry connection in a couple of secs
-          self
-            .delaySubscription(3.seconds)
-            .unsafeSubscribeFn(subscriber)
-        }
-      })
-
-    subscription
+      def onComplete(): Unit = {
+        // retry connection in a couple of secs
+        self
+          .delaySubscription(3.seconds)
+          .unsafeSubscribeFn(subscriber)
+      }
+    })
   }
 }
 
