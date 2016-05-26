@@ -6,7 +6,7 @@ back-pressure applied (by means of the [Reactive Streams](http://www.reactive-st
 protocol), using [Monix](https://github.com/monixio/monix) for both
 the server and the client ;-)
 
-See: **[monix-sample.herokuapp.com](http://monifu-sample.herokuapp.com)**
+See: **[monix-sample.herokuapp.com](http://monix-sample.herokuapp.com)**
 
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/monixio/monix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
