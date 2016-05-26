@@ -1,11 +1,10 @@
 package engine
 
-import util.Random
-import monix.execution.{Cancelable, FutureUtils}
+import monix.execution.Cancelable
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
 import shared.models.Signal
-
+import util.Random
 import scala.concurrent.duration._
 
 final class DataProducer(interval: FiniteDuration, seed: Long)

@@ -9,10 +9,12 @@ body {
 }
 
 body h1 {
-    color: #555555;
+    color: #667799;
     font-family: 'Roboto Condensed', sans-serif;
     font-weight: bold;
-    font-size: 250%
+    font-size: 400%;
+    margin-top: 0;
+    padding-top: 0;
 }
 
 body h1 a {
@@ -20,12 +22,16 @@ body h1 a {
 }
 
 body h1 a img {
-    height: 40px;
+    height: 100px;
+    position: absolute;
+    top: 30px;
+    right: 30px;
 }
 
 #lineChart {
     border: 1px dashed #888;
     background-color: #fff;
+    margin-top: 50px;
 }
 
 #source {

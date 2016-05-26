@@ -7,10 +7,11 @@ import monix.execution.Scheduler
 import monix.execution.rstreams.SingleAssignmentSubscription
 import monix.reactive.Observable
 import org.reactivestreams.{Subscriber, Subscription}
-import play.api.libs.json.{JsObject, JsValue, Json, Writes}
+import play.api.libs.json._
 import shared.models.Event
 
 import scala.concurrent.duration._
+import scala.util.Try
 
 
 class BackPressuredWebSocketActor[T <: Event : Writes]
@@ -18,8 +19,8 @@ class BackPressuredWebSocketActor[T <: Event : Writes]
   extends Actor with LazyLogging {
 
   def receive: Receive = {
-    case Request(nr) =>
-      subscription.request(nr)
+    case JsNumber(nr) if nr > 0 =>
+      Try(nr.toLongExact).foreach(subscription.request)
   }
 
   private[this] val subscription = SingleAssignmentSubscription()

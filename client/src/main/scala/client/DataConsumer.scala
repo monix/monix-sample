@@ -6,7 +6,6 @@ import monix.reactive.OverflowStrategy.DropNew
 import monix.reactive.observers.Subscriber
 import org.scalajs.dom
 import shared.models.{Event, OverflowEvent, Signal}
-
 import scala.concurrent.duration.FiniteDuration
 import scala.scalajs.js.Dynamic.global
 
