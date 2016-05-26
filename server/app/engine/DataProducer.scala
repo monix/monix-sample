@@ -1,23 +1,24 @@
 package engine
 
-import monifu.reactive.{Subscriber, Observable}
-import monifu.concurrent.FutureUtils.delayedResult
-import monifu.util.Random
+import util.Random
+import monix.execution.{Cancelable, FutureUtils}
+import monix.reactive.Observable
+import monix.reactive.observers.Subscriber
 import shared.models.Signal
+
 import scala.concurrent.duration._
 
 final class DataProducer(interval: FiniteDuration, seed: Long)
   extends Observable[Signal] {
 
-  def onSubscribe(subscriber: Subscriber[Signal]): Unit =
-    points.onSubscribe(subscriber)
+  private case class State(x: Int, y: Int, ts: Long)
 
-  private val points = Observable.create[Signal] { subscriber =>
+  override def unsafeSubscribeFn(subscriber: Subscriber[Signal]): Cancelable = {
     import subscriber.{scheduler => s}
 
     val random = Observable
       .fromStateAction(Random.intInRange(-20, 20))(s.currentTimeMillis() + seed)
-      .flatMap { x => delayedResult(interval)(x) }
+      .flatMap { x => Observable.now(x).delaySubscription(interval) }
 
     val generator = random.scan(Signal(0, s.currentTimeMillis())) {
       case (Signal(value, _), rnd) =>
@@ -25,9 +26,8 @@ final class DataProducer(interval: FiniteDuration, seed: Long)
         Signal(next, s.currentTimeMillis())
     }
 
-    generator.drop(1)
-      .onSubscribe(subscriber)
+    generator
+      .drop(1)
+      .unsafeSubscribeFn(subscriber)
   }
-
-  private case class State(x: Int, y: Int, ts: Long)
 }

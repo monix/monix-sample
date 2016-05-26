@@ -1,14 +1,14 @@
-# Monifu Client/Server Sample
+# Monix Client/Server Sample
 
 Sample of a mixed client/server application demonstrating
 the streaming of values over web-socket, both simple and with 
 back-pressure applied (by means of the [Reactive Streams](http://www.reactive-streams.org/)
-protocol), using [Monifu](https://github.com/monifu/monifu) for both
+protocol), using [Monix](https://github.com/monixio/monix) for both
 the server and the client ;-)
 
-See: **[monifu-sample.herokuapp.com](http://monifu-sample.herokuapp.com)**
+See: **[monix-sample.herokuapp.com](http://monifu-sample.herokuapp.com)**
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/monifu/monifu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/monixio/monix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Overview of the code:
 

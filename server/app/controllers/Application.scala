@@ -1,6 +1,6 @@
 package controllers
 
-import monifu.concurrent.Implicits.globalScheduler
+import monix.execution.Scheduler.Implicits.global
 import engine.{SimpleWebSocketActor, BackPressuredWebSocketActor, DataProducer}
 import play.api.libs.json.JsValue
 import play.api.mvc._
