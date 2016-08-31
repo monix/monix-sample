@@ -35,7 +35,7 @@ lazy val client = (project in file("client"))
     persistLauncher in Test := false,
 //    sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.0",
+      "org.scala-js" %%% "scalajs-dom" % "0.9.1",
       "io.monix" %%% "monix" % "2.0-RC13"
     )
   )
