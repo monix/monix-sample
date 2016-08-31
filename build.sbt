@@ -12,7 +12,7 @@ lazy val server = (project in file("server")).settings(
     "com.vmunier" %% "play-scalajs-scripts" % "0.5.0",
     "org.webjars" % "jquery" % "1.12.4",
     "org.webjars.bower" % "epoch" % "0.6.0",
-    "org.webjars" % "d3js" % "3.5.16",
+    "org.webjars" % "d3js" % "3.5.17",
     "io.monix" %% "monix" % "2.0-RC13",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   ),
