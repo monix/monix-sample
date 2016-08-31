@@ -14,6 +14,7 @@ lazy val server = (project in file("server")).settings(
     "org.webjars.bower" % "epoch" % "0.6.0",
     "org.webjars" % "d3js" % "3.5.16",
     "io.monix" %% "monix" % "2.0.0",
+    "io.monix" %% "monix" % "2.0-RC9",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   ),
   // Heroku specific
