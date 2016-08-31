@@ -13,7 +13,7 @@ lazy val server = (project in file("server")).settings(
     "org.webjars" % "jquery" % "1.12.3",
     "org.webjars.bower" % "epoch" % "0.6.0",
     "org.webjars" % "d3js" % "3.5.16",
-    "io.monix" %% "monix" % "2.0-RC9",
+    "io.monix" %% "monix" % "2.0-RC13",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   ),
   // Heroku specific
@@ -36,7 +36,7 @@ lazy val client = (project in file("client"))
 //    sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.0",
-      "io.monix" %%% "monix" % "2.0-RC9"
+      "io.monix" %%% "monix" % "2.0-RC13"
     )
   )
 
