@@ -10,10 +10,10 @@ lazy val server = (project in file("server")).settings(
   resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
   libraryDependencies ++= Seq(
     "com.vmunier" %% "play-scalajs-scripts" % "0.5.0",
-    "org.webjars" % "jquery" % "1.12.3",
+    "org.webjars" % "jquery" % "1.12.4",
     "org.webjars.bower" % "epoch" % "0.6.0",
-    "org.webjars" % "d3js" % "3.5.16",
-    "io.monix" %% "monix" % "2.0.5",
+    "org.webjars" % "d3js" % "3.5.17",
+    "io.monix" %% "monix" % "2.1.2",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   ),
   // Heroku specific
@@ -33,10 +33,10 @@ lazy val client = (project in file("client"))
     scalaVersion := scalaV,
     persistLauncher := true,
     persistLauncher in Test := false,
-//    sourceMapsDirectories += sharedJs.base / "..",
+    // sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-      "io.monix" %%% "monix" % "2.0.0"
+      "io.monix" %%% "monix" % "2.1.2"
     )
   )
 
