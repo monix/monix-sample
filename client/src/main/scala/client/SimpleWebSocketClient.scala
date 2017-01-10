@@ -48,7 +48,7 @@ final class SimpleWebSocketClient private (url: String, os: OverflowStrategy.Syn
 
         webSocket.onerror = (event: ErrorEvent) => {
           // If error, signal it and it will be the last message
-          downstream.onError(BackPressuredWebSocketClient.Exception(event.message))
+          downstream.onError(SimpleWebSocketClient.Exception(event.message))
         }
         webSocket.onclose = (event: CloseEvent) => {
           // If close, signal it and it will be the last message
@@ -83,18 +83,14 @@ final class SimpleWebSocketClient private (url: String, os: OverflowStrategy.Syn
 
       def onError(ex: Throwable): Unit = {
         scheduler.reportFailure(ex)
-        // Retry connection in a couple of secs
-        self
-          .delaySubscription(3.seconds)
-          .unsafeSubscribeFn(subscriber)
+        onComplete()
       }
 
-      def onComplete(): Unit = {
+      def onComplete(): Unit =
         // Retry connection in a couple of secs
         self
           .delaySubscription(3.seconds)
           .unsafeSubscribeFn(subscriber)
-      }
     })
 }
 

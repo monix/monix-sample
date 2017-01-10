@@ -10,8 +10,6 @@ import scala.concurrent.duration._
 final class DataProducer(interval: FiniteDuration, seed: Long)
   extends Observable[Signal] {
 
-  private case class State(x: Int, y: Int, ts: Long)
-
   override def unsafeSubscribeFn(subscriber: Subscriber[Signal]): Cancelable = {
     import subscriber.{scheduler => s}
 
@@ -21,8 +19,7 @@ final class DataProducer(interval: FiniteDuration, seed: Long)
 
     val generator = random.scan(Signal(0, s.currentTimeMillis())) {
       case (Signal(value, _), rnd) =>
-        val next = value + rnd
-        Signal(next, s.currentTimeMillis())
+        Signal(value + rnd, s.currentTimeMillis())
     }
 
     generator
