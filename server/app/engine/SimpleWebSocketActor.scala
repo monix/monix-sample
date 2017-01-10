@@ -8,13 +8,12 @@ import monix.execution.Ack.Continue
 import monix.execution.cancelables.CompositeCancelable
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsValue, Json, Writes}
-import shared.models.Event
 
 import scala.concurrent.duration._
 import engine.BackPressuredWebSocketActor._
 
 
-class SimpleWebSocketActor[T <: Event : Writes]
+class SimpleWebSocketActor[T: Writes]
   (producer: Observable[T], out: ActorRef)(implicit s: Scheduler)
   extends Actor {
 
@@ -53,7 +52,7 @@ class SimpleWebSocketActor[T <: Event : Writes]
 
 object SimpleWebSocketActor {
   /** Utility for quickly creating a `Props` */
-  def props[T <: Event : Writes](producer: Observable[T], out: ActorRef)
+  def props[T: Writes](producer: Observable[T], out: ActorRef)
     (implicit s: Scheduler): Props = {
 
     Props(new SimpleWebSocketActor(producer, out))

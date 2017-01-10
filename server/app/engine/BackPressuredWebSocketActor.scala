@@ -8,13 +8,12 @@ import monix.execution.rstreams.SingleAssignmentSubscription
 import monix.reactive.Observable
 import org.reactivestreams.{Subscriber, Subscription}
 import play.api.libs.json._
-import shared.models.Event
 
 import scala.concurrent.duration._
 import scala.util.Try
 
 
-class BackPressuredWebSocketActor[T <: Event : Writes]
+class BackPressuredWebSocketActor[T: Writes]
   (producer: Observable[T], out: ActorRef)(implicit s: Scheduler)
   extends Actor with LazyLogging {
 
@@ -76,7 +75,7 @@ class BackPressuredWebSocketActor[T <: Event : Writes]
 
 object BackPressuredWebSocketActor {
   /** Utility for quickly creating a `Props` */
-  def props[T <: Event : Writes](producer: Observable[T], out: ActorRef)
+  def props[T: Writes](producer: Observable[T], out: ActorRef)
     (implicit s: Scheduler): Props = {
 
     Props(new BackPressuredWebSocketActor(producer, out))
