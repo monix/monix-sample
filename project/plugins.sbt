@@ -10,7 +10,7 @@ resolvers += Resolver.url("heroku-sbt-plugin-releases",
 // Sbt plugins
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.6")
 
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.13")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.14")
 
 addSbtPlugin("com.vmunier" % "sbt-play-scalajs" % "0.3.0")
 
