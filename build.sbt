@@ -31,6 +31,7 @@ lazy val server = (project in file("server")).settings(
   // Play Framework
   routesGenerator := InjectedRoutesGenerator)
   .enablePlugins(PlayScala)
+  .aggregate(client)
   .dependsOn(sharedJvm)
 
 lazy val client = (project in file("client"))
