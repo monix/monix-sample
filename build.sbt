@@ -1,13 +1,15 @@
 import sbt.Project.projectToRef
 
-lazy val mainScalaVersion = "2.11.9"
 lazy val monixVersion = "2.2.4"
 
-lazy val server = (project in file("server")).settings(
-  name := "monix-sample",
+lazy val commonSettings = Seq(
   version := "1.0",
   organization := "io.monix",
-  scalaVersion := mainScalaVersion,
+  scalaVersion := "2.11.9"
+)
+
+lazy val server = (project in file("server")).settings(commonSettings).settings(
+  name := "monix-sample-server",
 
   scalaJSProjects := Seq(client),
   pipelineStages in Assets := Seq(scalaJSPipeline),
@@ -37,8 +39,9 @@ lazy val server = (project in file("server")).settings(
 lazy val client = (project in file("client"))
   .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(sharedJs)
+  .settings(commonSettings)
   .settings(
-    scalaVersion := mainScalaVersion,
+    name := "monix-sample-client",
     scalaJSUseMainModuleInitializer := true,
     scalaJSUseMainModuleInitializer in Test := false,
     // sourceMapsDirectories += sharedJs.base / "..",
@@ -49,7 +52,8 @@ lazy val client = (project in file("client"))
   )
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared"))
-  .settings(scalaVersion := mainScalaVersion)
+  .settings(commonSettings)
+  .settings(name := "monix-sample-shared")
   .jsConfigure(_ enablePlugins ScalaJSWeb)
 
 lazy val sharedJvm = shared.jvm
