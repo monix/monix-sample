@@ -4,6 +4,7 @@ lazy val mainScalaVersion = "2.11.9"
 lazy val monixVersion = "2.2.4"
 
 lazy val server = (project in file("server")).settings(
+  name := "monix-sample",
   version := "1.0",
   organization := "io.monix",
   scalaVersion := mainScalaVersion,
