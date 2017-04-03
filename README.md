@@ -47,8 +47,15 @@ NOTES:
   is thus more difficult to develop
   
 In order to develop and execute the project locally:
+
 ```
 sbt run
+```
+
+For Heroku deployment:
+
+```
+sbt stage deployHeroku
 ```
 
 The project is based on the cool 
