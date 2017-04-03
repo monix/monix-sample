@@ -1,15 +1,14 @@
 @(implicit env: play.api.Environment)
 
 @main("Monix Client/Server Sample") {
-
   <h1>
     Monix: Client/Server
 
     <a href="https://monix.io/">
-      <img src="@routes.Assets.at("images/monix-logo.png")" />
+      <img src="@routes.Assets.versioned("images/monix-logo.png")" />
     </a>
   </h1>
 
-  <div id="lineChart" class="epoch category10" style="height: 250px"></div>
-  <a href="https://github.com/monixio/monix-sample" id="source">View the Source</a>
+  <div id="lineChart" class="epoch category10" style="height: 250px;"></div>
+  <a href="https://github.com/monix/monix-sample" id="source">View the Source</a>
 }

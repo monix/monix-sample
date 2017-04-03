@@ -3,12 +3,12 @@
 Sample of a mixed client/server application demonstrating
 the streaming of values over web-socket, both simple and with 
 back-pressure applied (by means of the [Reactive Streams](http://www.reactive-streams.org/)
-protocol), using [Monix](https://github.com/monixio/monix) for both
+protocol), using [Monix](https://github.com/monix/monix) for both
 the server and the client ;-)
 
 See: **[monix-sample.herokuapp.com](http://monix-sample.herokuapp.com)**
 
-[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/monixio/monix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/monix/monix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Overview of the code:
 
@@ -53,7 +53,7 @@ sbt run
 
 The project is based on the cool 
 [play-with-scalajs-example](https://github.com/vmunier/play-with-scalajs-example)
-template by @vmunier, so you get the auto-reload coolness of Play in combination
-with Scala.js.
+template by [@vmunier](https://github.com/vmunier), so you get the auto-reload 
+coolness of Play in combination with Scala.js.
 
 ~;Enjoy

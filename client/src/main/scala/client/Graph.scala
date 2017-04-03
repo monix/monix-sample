@@ -12,9 +12,9 @@ import scala.scalajs.js.Dynamic.{literal => obj, _}
 final class Graph(elementId: String)
   extends Observer[(Signal, Signal, Signal, Signal)] {
 
-  private var chart: js.Dynamic = null
+  private[this] var chart: js.Dynamic = _
 
-  def initChart(signal: (Signal, Signal, Signal, Signal)) = {
+  def initChart(signal: (Signal, Signal, Signal, Signal)): js.Dynamic = {
     val (first, second, third, fourth) = signal
     val timestamp = Seq(first.timestamp, second.timestamp, third.timestamp, fourth.timestamp).max / 1000
 
@@ -81,12 +81,10 @@ final class Graph(elementId: String)
   }
 
   def onNext(signal: (Signal, Signal, Signal, Signal)): Future[Ack] = {
-    if (chart == null) {
+    if (chart == null)
       chart = initChart(signal)
-    }
-    else {
+    else
       chart.push(serialize(signal))
-    }
 
     Continue
   }

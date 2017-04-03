@@ -1,48 +1,52 @@
 import sbt.Project.projectToRef
 
-lazy val clients = Seq(client)
-lazy val scalaV = "2.11.8"
+lazy val mainScalaVersion = "2.11.9"
+lazy val monixVersion = "2.2.4"
 
 lazy val server = (project in file("server")).settings(
-  scalaVersion := scalaV,
-  scalaJSProjects := clients,
-  pipelineStages := Seq(scalaJSProd, gzip),
-  resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases",
+  scalaVersion := mainScalaVersion,
+
+  scalaJSProjects := Seq(client),
+  pipelineStages in Assets := Seq(scalaJSPipeline),
+  pipelineStages := Seq(digest, gzip),
+  // triggers scalaJSPipeline when using compile or continuous compilation
+  compile in Compile := ((compile in Compile) dependsOn scalaJSPipeline).value,
+
   libraryDependencies ++= Seq(
-    "com.vmunier" %% "play-scalajs-scripts" % "0.5.0",
+    "com.vmunier" %% "scalajs-scripts" % "1.0.0",
     "org.webjars" % "jquery" % "1.12.4",
     "org.webjars.bower" % "epoch" % "0.6.0",
     "org.webjars" % "d3js" % "3.5.17",
-    "io.monix" %% "monix" % "2.2.0",
+    "io.monix" %% "monix" % monixVersion,
     "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0"
   ),
+
   // Heroku specific
   herokuAppName in Compile := "monix-sample",
   herokuSkipSubProjects in Compile := false,
 
   // Play Framework
-  routesGenerator := InjectedRoutesGenerator
-).enablePlugins(PlayScala).
-  aggregate(clients.map(projectToRef): _*).
-  dependsOn(sharedJvm)
+  routesGenerator := InjectedRoutesGenerator)
+  .enablePlugins(PlayScala)
+  .dependsOn(sharedJvm)
 
 lazy val client = (project in file("client"))
-  .enablePlugins(ScalaJSPlugin, ScalaJSPlay)
+  .enablePlugins(ScalaJSPlugin, ScalaJSWeb)
   .dependsOn(sharedJs)
   .settings(
-    scalaVersion := scalaV,
-    persistLauncher := true,
-    persistLauncher in Test := false,
+    scalaVersion := mainScalaVersion,
+    scalaJSUseMainModuleInitializer := true,
+    scalaJSUseMainModuleInitializer in Test := false,
     // sourceMapsDirectories += sharedJs.base / "..",
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.9.1",
-      "io.monix" %%% "monix" % "2.2.0"
+      "io.monix" %%% "monix" % monixVersion
     )
   )
 
 lazy val shared = (crossProject.crossType(CrossType.Pure) in file("shared"))
-  .settings(scalaVersion := scalaV)
-  .jsConfigure(_ enablePlugins ScalaJSPlay)
+  .settings(scalaVersion := mainScalaVersion)
+  .jsConfigure(_ enablePlugins ScalaJSWeb)
 
 lazy val sharedJvm = shared.jvm
 lazy val sharedJs = shared.js

@@ -9,4 +9,4 @@ GET        /back-pressured-stream     controllers.ApplicationController.backPres
 GET        /simple-stream             controllers.ApplicationController.simpleStream(periodMillis: Int, seed: Long)
 
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file              controllers.Assets.at(path="/public", file)
+GET        /assets/*file              controllers.Assets.versioned(path="/public", file: Asset)
